@@ -24,16 +24,16 @@ jobs:
 
       - name: Make gradlew executable
         run: |
-          cd android
+          cd android/MLCChat
           chmod +x gradlew
 
       - name: Build Android App
         run: |
-          cd android
+          cd android/MLCChat
           ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Offline-AI-App
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: android/MLCChat/**/*.apk
