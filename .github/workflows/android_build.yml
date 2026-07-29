@@ -29,9 +29,9 @@ jobs:
 
       - name: The Ultimate Engine Build Step
         run: |
-          # 1. Install the CPU-only tools
+          # 1. Install the CPU-only tools WITH PADLOCKS (>=0.20) to stop downgrades
           python -m pip install --upgrade pip
-          python -m pip install --pre -U -f https://mlc.ai/wheels mlc-ai-nightly-cpu mlc-llm-nightly-cpu
+          python -m pip install --pre -U -f https://mlc.ai/wheels "mlc-ai-nightly-cpu>=0.20" "mlc-llm-nightly-cpu>=0.20"
           
           # 2. Set the variables
           export ANDROID_NDK=$ANDROID_NDK_HOME
