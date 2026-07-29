@@ -29,14 +29,15 @@ jobs:
 
       - name: Install AI Compiler (MLC LLM)
         run: |
-          pip install --pre --force-reinstall mlc-ai-nightly-cpu mlc-llm-nightly-cpu -f https://mlc.ai/wheels
+          python -m pip install --upgrade pip
+          python -m pip install --pre --force-reinstall mlc-ai-nightly-cpu mlc-llm-nightly-cpu -f https://mlc.ai/wheels
 
       - name: Compile the C++ AI Engine (mlc4j)
         run: |
           export ANDROID_NDK=$ANDROID_NDK_HOME
           export MLC_LLM_SOURCE_DIR=${{ github.workspace }}
           cd android/MLCChat
-          mlc_llm package
+          python -m mlc_llm package
 
       - name: Make gradlew executable
         run: |
