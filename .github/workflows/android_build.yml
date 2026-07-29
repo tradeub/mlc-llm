@@ -27,18 +27,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install AI Compiler (MLC LLM)
+      - name: The Ultimate Engine Build Step
         run: |
+          # 1. Install the CPU-only tools
           python -m pip install --upgrade pip
           python -m pip install --pre -U -f https://mlc.ai/wheels mlc-ai-nightly-cpu mlc-llm-nightly-cpu
-
-      - name: Compile the C++ AI Engine (mlc4j)
-        run: |
+          
+          # 2. Set the variables
           export ANDROID_NDK=$ANDROID_NDK_HOME
           export MLC_LLM_SOURCE_DIR=${{ github.workspace }}
-          export PATH="$HOME/.local/bin:$PATH"
+          
+          # 3. Enter the folder and command Python to package the engine directly
           cd android/MLCChat
-          mlc_llm package
+          python -m mlc_llm package
 
       - name: Make gradlew executable
         run: |
