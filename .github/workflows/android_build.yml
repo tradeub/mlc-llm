@@ -29,9 +29,9 @@ jobs:
 
       - name: The Ultimate Engine Build Step
         run: |
-          # 1. Install the CPU-only tools WITH PADLOCKS (>=0.20) to stop downgrades
+          # 1. Force the working part (0.1.12) to bypass the manufacturer's broken update!
           python -m pip install --upgrade pip
-          python -m pip install --pre -U -f https://mlc.ai/wheels "mlc-ai-nightly-cpu>=0.20" "mlc-llm-nightly-cpu>=0.20"
+          python -m pip install --pre -U -f https://mlc.ai/wheels "apache-tvm-ffi==0.1.12" "mlc-ai-nightly-cpu>=0.20" "mlc-llm-nightly-cpu>=0.20"
           
           # 2. Set the variables
           export ANDROID_NDK=$ANDROID_NDK_HOME
