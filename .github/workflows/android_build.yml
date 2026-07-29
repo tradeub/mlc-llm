@@ -14,13 +14,29 @@ jobs:
           submodules: 'recursive'
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install AI Compiler (MLC LLM)
+        run: |
+          pip install --pre --force-reinstall mlc-ai-nightly-cpu mlc-llm-nightly-cpu -f https://mlc.ai/wheels
+
+      - name: Compile the C++ AI Engine (mlc4j)
+        run: |
+          export ANDROID_NDK=$ANDROID_NDK_HOME
+          export MLC_LLM_SOURCE_DIR=${{ github.workspace }}
+          cd android/MLCChat
+          mlc_llm package
 
       - name: Make gradlew executable
         run: |
