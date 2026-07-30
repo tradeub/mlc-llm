@@ -29,7 +29,6 @@ jobs:
           rustup target add aarch64-linux-android
 
       # --- THE GPS TRACKER ---
-      # Force download stable NDK 25 and tag it with an ID so we know EXACTLY where it is
       - name: Setup Stable Android NDK
         uses: nttld/setup-ndk@v1
         id: setup-ndk
@@ -51,11 +50,13 @@ jobs:
           sed -i 's/var.name_hint/getattr(var, "name_hint", "v")/g' $SITE_PKG/mlc_llm/compiler_pass/scatter_tuple_get_item.py
           # ---------------------------------
 
-          # --- THE IRON-CLAD ADDRESS ---
-          # We use the exact GPS coordinates from the download step above
+          # --- THE IRON-CLAD ADDRESS & TRANSLATOR PEN ---
           export ANDROID_NDK=${{ steps.setup-ndk.outputs.ndk-path }}
           export ANDROID_NDK_HOME=$ANDROID_NDK
           export TVM_NDK_CC=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
+          
+          # Give the Rust Translator the exact pen (Linker) he needs to write Android code!
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$TVM_NDK_CC
           # -----------------------------
           
           export MLC_LLM_SOURCE_DIR=/home/runner/work/mlc-llm/mlc-llm
@@ -67,7 +68,6 @@ jobs:
           ./gradlew assembleDebug
 
       # --- YOUR SURPRISE! ---
-      # This grabs the finished app and lets you download it from the GitHub page!
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
