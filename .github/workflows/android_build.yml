@@ -28,13 +28,10 @@ jobs:
         run: |
           rustup target add aarch64-linux-android
 
-      # --- THE GPS TRACKER ---
       - name: Setup Stable Android NDK
         uses: nttld/setup-ndk@v1
-        id: setup-ndk
         with:
           ndk-version: r25c
-      # -----------------------
 
       - name: Compile and Build App
         run: |
@@ -51,11 +48,11 @@ jobs:
           # ---------------------------------
 
           # --- THE IRON-CLAD ADDRESS & TRANSLATOR PEN ---
-          export ANDROID_NDK=${{ steps.setup-ndk.outputs.ndk-path }}
-          export ANDROID_NDK_HOME=$ANDROID_NDK
-          export TVM_NDK_CC=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
+          # Look directly at the giant neon sign the NDK sets up!
+          export ANDROID_NDK=$ANDROID_NDK_HOME
+          export TVM_NDK_CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
           
-          # Give the Rust Translator the exact pen (Linker) he needs to write Android code!
+          # Give the Rust Translator the REAL, valid pen!
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$TVM_NDK_CC
           # -----------------------------
           
