@@ -8,50 +8,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: The Ultimate Engine Build Step
+      - name: Compile and Build App
         run: |
           python -m pip install --upgrade pip
           
-          # The Precision Time Machine: Roll back to yesterday, but NO FARTHER than v0.20!
-          python -m pip install --pre -U -f https://mlc.ai/wheels "mlc-ai-nightly-cpu>=0.20,<0.26.dev246" "mlc-llm-nightly-cpu>=0.20,<0.26.dev4"
+          # THE IRON-CLAD LOCK: Force the exact latest engines so the system can't panic!
+          python -m pip install --pre -U -f https://mlc.ai/wheels mlc-ai-nightly-cpu==0.26.dev246 mlc-llm-nightly-cpu==0.26.dev4
           
           export ANDROID_NDK=$ANDROID_NDK_HOME
-          export MLC_LLM_SOURCE_DIR=${{ github.workspace }}
+          export MLC_LLM_SOURCE_DIR=/home/runner/work/mlc-llm/mlc-llm
           
           cd android/MLCChat
           python -m mlc_llm package
-
-      - name: Make gradlew executable
-        run: |
-          cd android/MLCChat
-          chmod +x gradlew
-
-      - name: Build Android App
-        run: |
-          cd android/MLCChat
+          
+          chmod +x ./gradlew
           ./gradlew assembleDebug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Offline-AI-App
-          path: android/MLCChat/**/*.apk
