@@ -32,8 +32,8 @@ jobs:
           # 1. Manually install the 'Release Candidate' part
           python -m pip install apache-tvm-ffi==0.1.13rc2
           
-          # 2. Manually load up the toolboxes (Added 'psutil' here!)
-          python -m pip install numpy transformers fastapi uvicorn pydantic shortuuid requests tqdm scipy psutil
+          # 2. Manually load up the toolboxes (Added 'ml_dtypes' here!)
+          python -m pip install numpy transformers fastapi uvicorn pydantic shortuuid requests tqdm scipy psutil ml_dtypes
           
           # 3. Bolt the engines in and ignore the broken instruction manual (--no-deps)
           python -m pip install --pre -U --no-deps -f https://mlc.ai/wheels mlc-ai-nightly-cpu==0.26.dev246 mlc-llm-nightly-cpu==0.26.dev4
