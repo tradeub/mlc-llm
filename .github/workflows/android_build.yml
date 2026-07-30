@@ -55,14 +55,19 @@ jobs:
           SITE_PKG=$(python -c "import site; print(site.getsitepackages()[0])")
           sed -i 's/var.name_hint/getattr(var, "name_hint", "v")/g' $SITE_PKG/mlc_llm/compiler_pass/scatter_tuple_get_item.py
 
-          # --- PATCH 2: THE "BOOBY-TRAPPED" CMAKE WRAPPER ---
-          # We intercept the factory manager so it CANNOT wipe out our patch!
+          # --- PATCH 2: THE "BOOBY-TRAPPED" C++17 ENFORCER ---
           REAL_CMAKE=$(which cmake)
           mkdir -p $HOME/custom_cmake
-          cat << EOF > $HOME/custom_cmake/cmake
+          cat << 'EOF' > $HOME/custom_cmake/cmake
           #!/bin/bash
           sed -i 's/tvm_libinfo_objs/tvm_objs/g' /home/runner/work/mlc-llm/mlc-llm/3rdparty/tvm/cmake/modules/Logging.cmake 2>/dev/null || true
-          exec $REAL_CMAKE "\$@"
+          
+          # If it's a build command, run normally. If it's configuring, FORCE C++17!
+          if [[ " $* " == *" --build "* ]]; then
+            exec $REAL_CMAKE "$@"
+          else
+            exec $REAL_CMAKE "$@" -DCMAKE_CXX_STANDARD=17
+          fi
           EOF
           chmod +x $HOME/custom_cmake/cmake
           export PATH="$HOME/custom_cmake:$PATH"
