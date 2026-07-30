@@ -37,6 +37,7 @@ jobs:
 
       - name: Compile and Build App
         env:
+          # THE IRONCLAD VAULT 
           ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           TVM_NDK_CC: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
@@ -46,41 +47,29 @@ jobs:
         run: |
           python -m pip install --upgrade pip
 
-          # --- MANUAL TOOLBOXES ---
+          # 1. TOOLBOXES
           python -m pip install apache-tvm-ffi==0.1.13rc2
           python -m pip install numpy transformers fastapi uvicorn pydantic shortuuid requests tqdm scipy psutil ml_dtypes cmake ninja
           python -m pip install --pre -U --no-deps -f https://mlc.ai/wheels mlc-ai-nightly-cpu==0.26.dev246 mlc-llm-nightly-cpu==0.26.dev4
           
-          # --- PATCH 1: WELD THE PYTHON TYPO ---
+          # 2. PATCH THE PYTHON TYPO
           SITE_PKG=$(python -c "import site; print(site.getsitepackages()[0])")
           sed -i 's/var.name_hint/getattr(var, "name_hint", "v")/g' $SITE_PKG/mlc_llm/compiler_pass/scatter_tuple_get_item.py
 
-          # --- PATCH 2: THE "BOOBY-TRAPPED" C++17 ENFORCER ---
-          REAL_CMAKE=$(which cmake)
-          mkdir -p $HOME/custom_cmake
-          cat << 'EOF' > $HOME/custom_cmake/cmake
-          #!/bin/bash
-          sed -i 's/tvm_libinfo_objs/tvm_objs/g' /home/runner/work/mlc-llm/mlc-llm/3rdparty/tvm/cmake/modules/Logging.cmake 2>/dev/null || true
+          # 3. THE "DETTOL" PATCH: DIRECTLY FORCE C++17 IN THE SCRIPT!
+          sed -i 's/"-O3"/"-O3 -std=c++17"/g' android/mlc4j/prepare_libs.py
           
-          # If it's a build command, run normally. If it's configuring, FORCE C++17!
-          if [[ " $* " == *" --build "* ]]; then
-            exec $REAL_CMAKE "$@"
-          else
-            exec $REAL_CMAKE "$@" -DCMAKE_CXX_STANDARD=17
-          fi
-          EOF
-          chmod +x $HOME/custom_cmake/cmake
-          export PATH="$HOME/custom_cmake:$PATH"
-          # --------------------------------------------------
+          # 4. DESTROY THE PHANTOM BOX ERROR
+          sed -i 's/tvm_libinfo_objs/tvm_objs/g' 3rdparty/tvm/cmake/modules/Logging.cmake || true
 
-          # --- FINAL BUILD COMMAND ---
+          # 5. FINAL BUILD
           cd android/MLCChat
           python -m mlc_llm package
 
           chmod +x ./gradlew
           ./gradlew assembleDebug
 
-      # --- YOUR PRIZE ---
+      # 6. YOUR PRIZE (Downloadable APK)
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
