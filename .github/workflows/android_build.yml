@@ -28,43 +28,42 @@ jobs:
         run: |
           rustup target add aarch64-linux-android
 
+      # 1. FORCE THE FACTORY TO DOWNLOAD THE STABLE VERSION 25
       - name: Setup Stable Android NDK
         uses: nttld/setup-ndk@v1
+        id: setup-ndk
         with:
           ndk-version: r25c
+          link-to-sdk: true
 
       - name: Compile and Build App
+        env:
+          # 2. LOCK THE ADDRESSES IN THE VAULT (Using the exact path from the step above)
+          ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          TVM_NDK_CC: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
+          CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
+          MLC_LLM_SOURCE_DIR: /home/runner/work/mlc-llm/mlc-llm
         run: |
           python -m pip install --upgrade pip
 
-          # --- THE ROGUE MECHANIC BYPASS ---
+          # 3. MANUAL TOOLBOXES & ENGINE BOLTS
           python -m pip install apache-tvm-ffi==0.1.13rc2
           python -m pip install numpy transformers fastapi uvicorn pydantic shortuuid requests tqdm scipy psutil ml_dtypes
           python -m pip install --pre -U --no-deps -f https://mlc.ai/wheels mlc-ai-nightly-cpu==0.26.dev246 mlc-llm-nightly-cpu==0.26.dev4
           
-          # Fix the developers' typo dynamically
+          # 4. WELD THE BROKEN PIPE (The Developers' Typo)
           SITE_PKG=$(python -c "import site; print(site.getsitepackages()[0])")
           sed -i 's/var.name_hint/getattr(var, "name_hint", "v")/g' $SITE_PKG/mlc_llm/compiler_pass/scatter_tuple_get_item.py
-          # ---------------------------------
-
-          # --- THE IRON-CLAD ADDRESS & TRANSLATOR PEN ---
-          # Look directly at the giant neon sign the NDK sets up!
-          export ANDROID_NDK=$ANDROID_NDK_HOME
-          export TVM_NDK_CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
           
-          # Give the Rust Translator the REAL, valid pen!
-          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$TVM_NDK_CC
-          # -----------------------------
-          
-          export MLC_LLM_SOURCE_DIR=/home/runner/work/mlc-llm/mlc-llm
-
+          # 5. BUILD THE APP
           cd android/MLCChat
           python -m mlc_llm package
 
           chmod +x ./gradlew
           ./gradlew assembleDebug
 
-      # --- YOUR SURPRISE! ---
+      # 6. YOUR PRIZE (Downloadable APK)
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
