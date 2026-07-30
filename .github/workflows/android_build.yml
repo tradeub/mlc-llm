@@ -44,6 +44,10 @@ jobs:
           # ---------------------------------
 
           export ANDROID_NDK=$ANDROID_NDK_HOME
+          
+          # 5. GIVE IT THE ADDRESS TO THE WRAPPING MACHINE
+          export TVM_NDK_CC=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
+          
           export MLC_LLM_SOURCE_DIR=/home/runner/work/mlc-llm/mlc-llm
 
           cd android/MLCChat
