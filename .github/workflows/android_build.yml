@@ -28,13 +28,6 @@ jobs:
         run: |
           rustup target add aarch64-linux-android
 
-      # --- NEW STEP: DOWNGRADE THE WRAPPING MACHINE ---
-      - name: Setup Stable Android NDK
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r25c
-      # ------------------------------------------------
-
       - name: Compile and Build App
         run: |
           python -m pip install --upgrade pip
@@ -54,11 +47,12 @@ jobs:
           sed -i 's/var.name_hint/getattr(var, "name_hint", "v")/g' $SITE_PKG/mlc_llm/compiler_pass/scatter_tuple_get_item.py
           # ---------------------------------
 
-          # The setup step above automatically sets ANDROID_NDK_HOME to the stable r25c version!
-          export ANDROID_NDK=$ANDROID_NDK_HOME
-          
-          # 5. GIVE IT THE ADDRESS TO THE WRAPPING MACHINE
+          # --- THE HARDCODED OVERRIDE ---
+          # Force the factory to use the exact NDK 25 folder, completely ignoring the server's defaults!
+          export ANDROID_NDK=$(ls -d /usr/local/lib/android/sdk/ndk/25.* | head -n 1)
+          export ANDROID_NDK_HOME=$ANDROID_NDK
           export TVM_NDK_CC=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang
+          # ------------------------------
           
           export MLC_LLM_SOURCE_DIR=/home/runner/work/mlc-llm/mlc-llm
 
