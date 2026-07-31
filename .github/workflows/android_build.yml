@@ -55,14 +55,15 @@ jobs:
           SITE_PKG=$(python -c "import site; print(site.getsitepackages()[0])")
           sed -i 's/var.name_hint/getattr(var, "name_hint", "v")/g' $SITE_PKG/mlc_llm/compiler_pass/scatter_tuple_get_item.py
 
-          # 3. PATCH 2: SURGICAL C++17 INJECTION (No super-glue!)
+          # 3. PATCH 2: SURGICAL C++17 INJECTION
           python -c "import pathlib; p = pathlib.Path('android/mlc4j/prepare_libs.py'); p.write_text(p.read_text().replace('\"-DCMAKE_BUILD_TYPE=Release\",', '\"-DCMAKE_BUILD_TYPE=Release\", \"-DCMAKE_CXX_STANDARD=17\",').replace(\"'-DCMAKE_BUILD_TYPE=Release',\", \"'-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_CXX_STANDARD=17',\"))"
           
           # 4. PATCH 3: DESTROY THE PHANTOM BOX ERROR
           sed -i 's/tvm_libinfo_objs/tvm_objs/g' 3rdparty/tvm/cmake/modules/Logging.cmake || true
 
-          # 5. PATCH 4: THE DIGITAL ERASER (Remove Nvidia airplane steering wheel)
+          # 5. PATCH 4: THE BIG DIGITAL ERASER (Remove Nvidia & OpenCL useless parts)
           sed -i '/nvtx.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
+          sed -i '/opencl_device_api.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
 
           # 6. FINAL BUILD
           cd android/MLCChat
