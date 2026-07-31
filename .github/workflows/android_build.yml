@@ -44,7 +44,7 @@ jobs:
           CARGO_TARGET_AARCH64_LINUX_ANDROID_AR: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
           MLC_LLM_SOURCE_DIR: /home/runner/work/mlc-llm/mlc-llm
         run: |
-          # 0. HEAVY DUTY NETWORK UPGRADES (Fixes the Git 128 Error)
+          # 0. HEAVY DUTY NETWORK UPGRADES
           sudo apt-get update && sudo apt-get install -y git-lfs
           git lfs install
           git config --global http.postBuffer 1048576000
@@ -66,9 +66,10 @@ jobs:
           # 4. PATCH 3: DESTROY THE PHANTOM BOX ERROR
           sed -i 's/tvm_libinfo_objs/tvm_objs/g' 3rdparty/tvm/cmake/modules/Logging.cmake || true
 
-          # 5. PATCH 4: THE DIGITAL SHREDDER
+          # 5. PATCH 4: THE ULTIMATE DIGITAL SHREDDER (Destroy Nvidia, OpenCL, and Profiling)
           sed -i '/nvtx.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
           sed -i '/opencl/d' android/mlc4j/src/cpp/tvm_runtime.h || true
+          sed -i '/profiling.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
 
           # 6. FINAL BUILD
           cd android/MLCChat
