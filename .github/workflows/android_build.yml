@@ -61,9 +61,9 @@ jobs:
           # 4. PATCH 3: DESTROY THE PHANTOM BOX ERROR
           sed -i 's/tvm_libinfo_objs/tvm_objs/g' 3rdparty/tvm/cmake/modules/Logging.cmake || true
 
-          # 5. PATCH 4: THE BIG DIGITAL ERASER (Remove Nvidia & OpenCL useless parts)
+          # 5. PATCH 4: THE DIGITAL SHREDDER (Destroy ALL OpenCL & Nvidia parts)
           sed -i '/nvtx.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
-          sed -i '/opencl_device_api.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
+          sed -i '/opencl/d' android/mlc4j/src/cpp/tvm_runtime.h || true
 
           # 6. FINAL BUILD
           cd android/MLCChat
