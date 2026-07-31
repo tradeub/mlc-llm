@@ -44,9 +44,14 @@ jobs:
           CARGO_TARGET_AARCH64_LINUX_ANDROID_AR: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
           MLC_LLM_SOURCE_DIR: /home/runner/work/mlc-llm/mlc-llm
         run: |
+          # 0. HEAVY DUTY NETWORK UPGRADES (Fixes the Git 128 Error)
+          sudo apt-get update && sudo apt-get install -y git-lfs
+          git lfs install
+          git config --global http.postBuffer 1048576000
+
           python -m pip install --upgrade pip
 
-          # 1. TOOLBOXES (Updated shopping list: grabbed dev5 instead of dev4!)
+          # 1. TOOLBOXES
           python -m pip install apache-tvm-ffi==0.1.13rc2
           python -m pip install numpy transformers fastapi uvicorn pydantic shortuuid requests tqdm scipy psutil ml_dtypes cmake ninja
           python -m pip install --pre -U --no-deps -f https://mlc.ai/wheels mlc-ai-nightly-cpu==0.26.dev246 mlc-llm-nightly-cpu==0.26.dev5
@@ -61,7 +66,7 @@ jobs:
           # 4. PATCH 3: DESTROY THE PHANTOM BOX ERROR
           sed -i 's/tvm_libinfo_objs/tvm_objs/g' 3rdparty/tvm/cmake/modules/Logging.cmake || true
 
-          # 5. PATCH 4: THE DIGITAL SHREDDER (Destroy ALL OpenCL & Nvidia parts)
+          # 5. PATCH 4: THE DIGITAL SHREDDER
           sed -i '/nvtx.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
           sed -i '/opencl/d' android/mlc4j/src/cpp/tvm_runtime.h || true
 
