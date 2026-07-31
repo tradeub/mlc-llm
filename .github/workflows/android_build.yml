@@ -61,14 +61,17 @@ jobs:
           # 4. PATCH 3: DESTROY THE PHANTOM BOX ERROR
           sed -i 's/tvm_libinfo_objs/tvm_objs/g' 3rdparty/tvm/cmake/modules/Logging.cmake || true
 
-          # 5. FINAL BUILD
+          # 5. PATCH 4: THE DIGITAL ERASER (Remove Nvidia airplane steering wheel)
+          sed -i '/nvtx.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
+
+          # 6. FINAL BUILD
           cd android/MLCChat
           python -m mlc_llm package
 
           chmod +x ./gradlew
           ./gradlew assembleDebug
 
-      # 6. YOUR PRIZE (Downloadable APK)
+      # 7. YOUR PRIZE (Downloadable APK)
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
