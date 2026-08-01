@@ -51,7 +51,7 @@ jobs:
 
           python -m pip install --upgrade pip
 
-          # 1. TOOLBOXES (Updated apache-tvm-ffi to the official finished tool)
+          # 1. TOOLBOXES
           python -m pip install apache-tvm-ffi==0.1.13.post0
           python -m pip install numpy transformers fastapi uvicorn pydantic shortuuid requests tqdm scipy psutil ml_dtypes cmake ninja
           python -m pip install --pre -U --no-deps -f https://mlc.ai/wheels mlc-ai-nightly-cpu==0.26.dev246 mlc-llm-nightly-cpu==0.26.dev5
@@ -72,14 +72,17 @@ jobs:
           sed -i '/profiling.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
           sed -i '/source_utils.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
 
-          # 6. FINAL BUILD
+          # 6. PATCH 5: THE STICKY NOTE FIX (Replaces missing label maker)
+          python -c "import pathlib; p = pathlib.Path('android/mlc4j/src/cpp/tvm_runtime.h'); p.write_text('#include <stdexcept>\n' + p.read_text().replace('throw InternalError(file, lineno, message);', 'throw std::runtime_error(message);'))"
+
+          # 7. FINAL BUILD
           cd android/MLCChat
           python -m mlc_llm package
 
           chmod +x ./gradlew
           ./gradlew assembleDebug
 
-      # 7. YOUR PRIZE (Downloadable APK)
+      # 8. YOUR PRIZE (Downloadable APK)
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
