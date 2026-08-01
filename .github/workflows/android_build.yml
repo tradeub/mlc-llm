@@ -72,17 +72,20 @@ jobs:
           sed -i '/profiling.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
           sed -i '/source_utils.cc/d' android/mlc4j/src/cpp/tvm_runtime.h || true
 
-          # 6. PATCH 5: THE STICKY NOTE FIX (Replaces missing label maker)
+          # 6. PATCH 5: THE STICKY NOTE FIX
           python -c "import pathlib; p = pathlib.Path('android/mlc4j/src/cpp/tvm_runtime.h'); p.write_text('#include <stdexcept>\n' + p.read_text().replace('throw InternalError(file, lineno, message);', 'throw std::runtime_error(message);'))"
 
-          # 7. FINAL BUILD
+          # 7. PATCH 6: THE MISSING DICTIONARY (Injects TVM FFI files into the wrapper)
+          for f in $(find $MLC_LLM_SOURCE_DIR/3rdparty/tvm/3rdparty/tvm-ffi/src -name "*.cc"); do echo "#include \"$f\"" >> android/mlc4j/src/cpp/tvm_runtime.h; done
+
+          # 8. FINAL BUILD
           cd android/MLCChat
           python -m mlc_llm package
 
           chmod +x ./gradlew
           ./gradlew assembleDebug
 
-      # 8. YOUR PRIZE (Downloadable APK)
+      # 9. YOUR PRIZE (Downloadable APK)
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
