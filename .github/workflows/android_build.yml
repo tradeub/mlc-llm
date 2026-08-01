@@ -51,8 +51,8 @@ jobs:
 
           python -m pip install --upgrade pip
 
-          # 1. TOOLBOXES
-          python -m pip install apache-tvm-ffi==0.1.13rc2
+          # 1. TOOLBOXES (Updated apache-tvm-ffi to the official finished tool)
+          python -m pip install apache-tvm-ffi==0.1.13.post0
           python -m pip install numpy transformers fastapi uvicorn pydantic shortuuid requests tqdm scipy psutil ml_dtypes cmake ninja
           python -m pip install --pre -U --no-deps -f https://mlc.ai/wheels mlc-ai-nightly-cpu==0.26.dev246 mlc-llm-nightly-cpu==0.26.dev5
           
